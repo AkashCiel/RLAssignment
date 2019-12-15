@@ -2,7 +2,7 @@ import simple_grid
 from q_learning_skeleton import *
 import gym
 
-def act_loop(env, agent, num_episodes):
+def act_loop(env, agent, num_episodes, timeDependent):
     for episode in range(num_episodes):
         state = env.reset()
 
@@ -23,11 +23,19 @@ def act_loop(env, agent, num_episodes):
                 agent.report()
                 print("state:", state)
 
-            action = agent.select_action(state)
-            new_state, reward, done, info = env.step(action)
-            if printing:
-                print("act:", action)
-                print("reward=%s" % reward)
+            if timeDependent == True:
+                action = agent.select_action(state, episode, num_episodes)
+                new_state, reward, done, info = env.step(action)
+                if printing:
+                    print("act:", action)
+                    print("reward=%s" % reward)
+
+            elif timeDependent == False:
+                action = agent.select_action(state, num_episodes, num_episodes)
+                new_state, reward, done, info = env.step(action)
+                if printing:
+                    print("act:", action)
+                    print("reward=%s" % reward)
 
             agent.process_experience(state, action, new_state, reward, done)
             state = new_state
@@ -54,4 +62,4 @@ if __name__ == "__main__":
 
     discount = DEFAULT_DISCOUNT
     ql = QLearner(num_o, num_a, discount) #<- QTable
-    act_loop(env, ql, NUM_EPISODES)
+    act_loop(env, ql, NUM_EPISODES, timeDependent=False)
